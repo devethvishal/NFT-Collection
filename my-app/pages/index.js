@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import Web3Modal from "web3modal";
-import { providers, Contract, utils } from "ethers";
+import { providers, Contract, utils, BigNumber } from "ethers";
 import { useState, useEffect, useRef } from "react";
 import { CRYPTODEVSCONTRACTADDRESS, abi } from "../constants/index.js";
 
@@ -60,8 +60,8 @@ export default function Home() {
         provider
       );
       const endTime = await nftContract.presaleEnded();
-
-      const hasEnded = endTime.lt(Math.floor(Date.now() / 1000));
+      const presaleEndTime = BigNumber.from(endTime);
+      const hasEnded = presaleEndTime.lt(Math.floor(Date.now() / 1000));
       if (hasEnded) {
         setPresaleEnded(true);
       } else {
@@ -78,9 +78,9 @@ export default function Home() {
     const provider = await web3ModalRef.current.connect();
     const web3Provider = new providers.Web3Provider(provider);
     const { chainId } = await web3Provider.getNetwork();
-    if (chainId !== 3) {
-      window.alert("Switch your network to ropsten testnet.");
-      throw new Error("You are not on ropsten testnet.");
+    if (chainId !== 4) {
+      window.alert("Switch your network to rinkeby testnet.");
+      throw new Error("You are not on rinkeby testnet.");
     }
     if (isSignerNeeded) {
       const signer = web3Provider.getSigner();
@@ -107,9 +107,11 @@ export default function Home() {
     try {
       const signer = await getSignerOrProvider(true);
       const nftContract = new Contract(CRYPTODEVSCONTRACTADDRESS, abi, signer);
+      console.log("called 1");
       const tx = await nftContract.presaleMint({
         value: utils.parseEther("0.01"),
       });
+      console.log("called 2");
       await tx.wait();
       await getNumberOfNFTMinted();
     } catch (error) {
@@ -127,7 +129,7 @@ export default function Home() {
         value: utils.parseEther("0.01"),
       });
       await tx.wait();
-      getNumberOfNFTMinted();
+      await getNumberOfNFTMinted();
     } catch (error) {
       console.log(error);
     }
@@ -164,12 +166,13 @@ export default function Home() {
       setIsLoading(true);
       const signer = await getSignerOrProvider(true);
       setIsWalletConnected(true);
-      const account = await signer.getAddress();
-
-      var accountStr = String(account);
-      accountStr =
-        accountStr.substring(0, 5) + "..." + accountStr.substring(39);
-      setAccount(accountStr);
+      setInterval(async()=>{
+        const account = await signer.getAddress();
+        var accountStr = String(account);
+        accountStr = accountStr.substring(0, 5) + "..." + accountStr.substring(39);
+        setAccount(accountStr);
+      },1000);
+      
       setIsLoading(false);
     } catch (error) {
       console.log(error);
