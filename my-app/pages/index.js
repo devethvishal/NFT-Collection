@@ -74,21 +74,7 @@ export default function Home() {
     }
   };
 
-  const getSignerOrProvider = async (isSignerNeeded = false) => {
-    const provider = await web3ModalRef.current.connect();
-    const web3Provider = new providers.Web3Provider(provider);
-    const { chainId } = await web3Provider.getNetwork();
-    if (chainId !== 4) {
-      window.alert("Switch your network to rinkeby testnet.");
-      throw new Error("You are not on rinkeby testnet.");
-    }
-    if (isSignerNeeded) {
-      const signer = web3Provider.getSigner();
-      return signer;
-    }
-    return web3Provider;
-  };
-
+  
   const startPresale = async () => {
     try {
       const signer = await getSignerOrProvider(true);
@@ -101,7 +87,7 @@ export default function Home() {
       console.log(error);
     }
   };
-
+  
   const presaleMintNFT = async () => {
     setIsLoading(true);
     try {
@@ -119,7 +105,7 @@ export default function Home() {
     }
     setIsLoading(false);
   };
-
+  
   const mintNFT = async () => {
     setIsLoading(true);
     try {
@@ -135,7 +121,7 @@ export default function Home() {
     }
     setIsLoading(false);
   };
-
+  
   const getNumberOfNFTMinted = async () => {
     try {
       const signer = await getSignerOrProvider(true);
@@ -146,7 +132,38 @@ export default function Home() {
       console.log(error);
     }
   };
-
+  
+  const getSignerOrProvider = async (isSignerNeeded = false) => {
+    const provider = await web3ModalRef.current.connect();
+    const web3Provider = new providers.Web3Provider(provider);
+    const { chainId } = await web3Provider.getNetwork();
+    if (chainId !== 4) {
+      window.alert("Switch your network to rinkeby testnet.");
+      throw new Error("You are not on rinkeby testnet.");
+    }
+    if (isSignerNeeded) {
+      const signer = web3Provider.getSigner();
+      return signer;
+    }
+    return web3Provider;
+  };
+  
+  const connectWallet = async () => {
+    try {
+      const signer = await getSignerOrProvider(true);
+      setIsWalletConnected(true);
+      setInterval(async () => {
+        const account = await signer.getAddress();
+        var accountStr = String(account);
+        accountStr =
+        accountStr.substring(0, 5) + "..." + accountStr.substring(39);
+        setAccount(accountStr);
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   const onPageLoad = async () => {
     try {
       await connectWallet();
@@ -161,23 +178,7 @@ export default function Home() {
       console.log(error);
     }
   };
-
-  const connectWallet = async () => {
-    try {
-      const signer = await getSignerOrProvider(true);
-      setIsWalletConnected(true);
-      setInterval(async () => {
-        const account = await signer.getAddress();
-        var accountStr = String(account);
-        accountStr =
-          accountStr.substring(0, 5) + "..." + accountStr.substring(39);
-        setAccount(accountStr);
-      }, 1000);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  
   useEffect(() => {
     if (!isWalletConnected) {
       web3ModalRef.current = new Web3Modal({
@@ -188,7 +189,7 @@ export default function Home() {
     }
     onPageLoad();
 
-    const checkStatus = setInterval(async () => {
+    const checkStatus = setInterval(async() => {
       const hasStrarted = await checkIfPresaleStarted();
       if (hasStrarted) {
         const hasEnded = await checkIfPresaleEnded();
