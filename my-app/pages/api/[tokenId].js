@@ -8,5 +8,6 @@ export default function handler(req, res) {
     name: "Crypto Dev #" + tokenId,
     description: "Crypto Dev is a collection of developers in crypto",
     image: imageURL + tokenId + ".svg",
+    background_color: "9EB23B"
   })
 }
