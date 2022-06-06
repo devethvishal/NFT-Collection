@@ -9,6 +9,7 @@ module.exports = {
   networks:{
     "rinkeby": {
       url: ALCHEMY_API_URL,
+      timeout:100000,
       accounts: [METAMASK_PRIVATE_KEY]
     }
   }
