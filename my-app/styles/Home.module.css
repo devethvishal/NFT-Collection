@@ -1,6 +1,9 @@
 .main {
   min-height: 90vh;
   display: flex;
+  position: relative;
+  margin-top: 100px;
+  margin-left: 100px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
