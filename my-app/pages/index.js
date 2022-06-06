@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { CRYPTODEVSCONTRACTADDRESS, abi } from "../constants/index.js";
 
 export default function Home() {
-  const [isWalletConnected, setIsWalletConnected] = useState();
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [account, setAccount] = useState("");
   const [presaleStarted, setPresaleStarted] = useState(false);
@@ -150,6 +150,7 @@ export default function Home() {
   
   const connectWallet = async () => {
     try {
+      setIsLoading(true);
       const signer = await getSignerOrProvider(true);
       setIsWalletConnected(true);
       setInterval(async () => {
@@ -202,18 +203,21 @@ export default function Home() {
     setInterval(async () => {
       await getNumberOfNFTMinted();
     }, 5000);
-  }, []);
+  }, [isWalletConnected]);
 
   const renderButton = () => {
-    if (isLoading) {
-      return <div className={styles.description}>Loading...</div>;
-    } else if (!isWalletConnected) {
+    if (!isWalletConnected) {
       return (
         <button className={styles.button} onClick={connectWallet}>
           Connect Wallet
         </button>
       );
-    } else if (!presaleStarted && isOwner) {
+    } 
+     if (isLoading) {
+      return <div className={styles.description}>Loading...</div>;
+    } 
+     
+    if (!presaleStarted && isOwner) {
       return (
         <div>
           <button onClick={startPresale} className={styles.button}>
@@ -221,7 +225,17 @@ export default function Home() {
           </button>
         </div>
       );
-    } else if (presaleStarted && !presaleEnded) {
+    }
+
+    if (!presaleStarted) {
+      return (
+        <div>
+          <div className={styles.description}>Presale hasnt started!</div>
+        </div>
+      );
+    }
+    
+     if (presaleStarted && !presaleEnded) {
       return (
         <div>
           <p>Presale is Ongoing, You need to be whitelisted to mint NFT now.</p>
@@ -231,7 +245,8 @@ export default function Home() {
           </button>
         </div>
       );
-    } else if (presaleStarted && presaleEnded) {
+    }
+     if (presaleStarted && presaleEnded) {
       return (
         <div>
           <p>Presale is Ended, Public sale is live now. Mint your NFT.</p>
@@ -241,13 +256,7 @@ export default function Home() {
           </button>
         </div>
       );
-    } else {
-      return (
-        <div>
-          <p>Sale is not started yet. Please, come back later.</p>
-        </div>
-      );
-    }
+    } 
   };
 
   return (
